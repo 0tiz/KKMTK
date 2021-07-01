@@ -25,54 +25,54 @@ antwortFirmware = b"\x1b0<SCR"
 antwortHandshakePoint = b"\x1b"
 antwortSerienummer = b"CS"
 antwortEingeschaltet = b"\n"
+antwortEinschaltsignal = b"\x1bIJ"
 
 
-
-# Handshake anfordern
 handshake = False
 einschaltCheck= False
 connectTopc = False
+mtkModus = False
 readStream = False
 
 
+#Handshake 
 
-# while einschaltCheck == False:
-#     ser.write(befehlHandshake1)
-#     print(read)
-#     time.sleep(1)
-    
-
-
-
+while einschaltCheck == False:
+    read = ser.read_all()
+    ser.write(befehlHandshake1)
+    if antwortEingeschaltet in read:
+        print(read)
+        print("Screen Recorder wurde eingeschaltet")
+        einschaltCheck == True
+    else:
+        print("Schalte den Screen Recorder ein")
+    time.sleep(0.6)
 
 while handshake == False:
-    read = ser.readline()
-    ser.write(befehlHandshake1)
-    print(read)
-    if antwortFirmware in read:
-        ser.write(befehl_MTK_modus)
-        print(read)
-    time.sleep(1)
-    
-    
-
-
-
-
-while connectTopc == False:
+    read = ser.read_all()
     ser.write(befehlHandshake2)
     print(read)
-    time.sleep(1)
-    if antwortSerienummer in read:
-        print("Antwort erhalten")
-        ser.write(befehlVerbindeMitPC)
-        print(read)
-        
+    if antwortFirmware in read:
+        print("Handshake erfolgreich")
+        handshake == True
+    time.sleep(0.6)
+
+while mtkModus == False:
+    read = ser.read_all()
+    ser.write(befehl_MTK_modus)
+    if "SerialNumber:" in read:
+        mtkModus == True
+    time.sleep(0.6)
 
 while readStream == False:
-    ser.write(befehl_MTK_modus)
-    readStream == True
+    read = ser.read_all()
     print(read)
+
+    
+
+
+
+
 
 
  
