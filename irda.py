@@ -3,12 +3,13 @@ import serial
 from serial.serialutil import STOPBITS_ONE, Timeout
 from serial.win32 import WaitCommEvent
 import time
+import screen300
 
 com_Port = "COM3"
 
 ser = serial.Serial(port='COM3', baudrate=115000, bytesize=serial.EIGHTBITS,timeout=0,
     parity=serial.PARITY_NONE)
-ser.flushInput()
+#ser.flushInput()
 #ser = serial.Serial(port='COM3', baudrate=115000, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, timeout=1)
     
 
@@ -29,45 +30,41 @@ antwortEinschaltsignal = b"\x1bIJ"
 
 
 handshake = False
-einschaltCheck= False
+einschaltCheck= True
 connectTopc = False
 mtkModus = False
 readStream = False
 
-
+screenRecorder = screen300.Screen300()
 #Handshake 
 
 while einschaltCheck == False:
     read = ser.read_all()
-    ser.write(befehlHandshake1)
-    if antwortEingeschaltet in read:
+    ser.write(screenRecorder.doHandshake1)
+
+    if screenRecorder.getEingeschaltet in read:
         print(read)
         print("Screen Recorder wurde eingeschaltet")
-        einschaltCheck == True
-    else:
-        print("Schalte den Screen Recorder ein")
+        einschaltCheck = True
+
     time.sleep(0.6)
 
 while handshake == False:
     read = ser.read_all()
-    ser.write(befehlHandshake2)
+    ser.write(screenRecorder.doHandshake2)
     print(read)
     if antwortFirmware in read:
         print("Handshake erfolgreich")
-        handshake == True
+        handshake = True
+        
     time.sleep(0.6)
 
-while mtkModus == False:
-    read = ser.read_all()
-    ser.write(befehl_MTK_modus)
-    if "SerialNumber:" in read:
-        mtkModus == True
-    time.sleep(0.6)
 
 while readStream == False:
     read = ser.read_all()
+    ser.write(screenRecorder.do_MTK_modus)
     print(read)
-
+    time.sleep(0.3)
     
 
 
